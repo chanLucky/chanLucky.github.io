@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Base64加解密</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="../assets/css/main.css" />
+	</head>
+	<body>
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Lalibrary</a></h1>
+						<nav id="nav">
+							<ul>
+								<li class="special">
+									<a href="#menu" class="menuToggle"><span>Menu</span></a>
+									<div id="menu">
+										<ul>
+											<li><a href="../index.html">Home</a></li>
+											<li><a href="Base64.html">一般加密</a></li>
+											<li><a href="AES.html">金鑰加密</a></li>
+											<li><a href="TRQuickBooking.html">產生台鐵訂票資訊</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Main -->
+					<article id="main">
+						<header>
+							<h2>Encryption</h2>
+							<p>簡單加密功能，不需金鑰</p>
+						</header>
+						<section class="wrapper style5">
+							<div class="inner">
+
+								<section>
+									<form method="post" action="#">
+										<div class="row uniform">
+											<div class="12u$">
+												<div class='select-wrapper'>
+													<select id="Codetype"> 
+														<option value="encode">編碼(encode)</option>
+														<option value="decode">解碼(decode)</option>
+													</select>
+												</div>		
+											</div>	
+											<div class="12u$" id="workDiv">
+												<textarea name="source" id="source" placeholder="請在此輸入文字/編碼..." rows="6"></textarea>
+											</div>
+											<div class="12u$">
+												<ul class="actions">
+													<li><input type="button" value="Send" class="special" id="btnSubmit"/></li>
+													<li><input type="reset" value="Reset" /></li>
+													<!--<li><input type="button" value="QR Code" class="special" id="makeCode" /></li>-->
+												</ul>
+											</div>
+											<div class="12u$">
+												<textarea name="resource" id="resource" rows="6" readonly></textarea>
+											</div>		
+											<!--
+											<div class="12u$">
+												<img id="download">
+													<div id="qrcode"></div>
+												</img>
+											</div>
+											-->
+										</div>
+									</form>
+									
+								</section>
+							</div>
+						</section>
+					</article>
+
+				<!-- Footer -->
+					<footer id="footer">
+						<ul class="copyright">
+							<li>&copy; Lucky</li>
+						</ul>
+					</footer>
+			</div>
+ 
+		<!-- Scripts -->
+			<script src="../assets/js/jquery.min.js"></script>
+			<script src="../assets/js/jquery.scrollex.min.js"></script>
+			<script src="../assets/js/jquery.scrolly.min.js"></script>
+			<script src="../assets/js/skel.min.js"></script>
+			<script src="../assets/js/util.js"></script>
+			<!---->
+			<script src="../assets/js/main.js"></script>
+			<script src="../js/jquery.qrcode.min.js" type="text/javascript" ></script>
+
+	</body>
+	<script>
+	$(".updog-stamp").remove();
+	$("#Codetype").change(function () {
+		var codeType = $(this).val();
+		switch(codeType)
+		{
+			case "encode":
+				$("#source").prop("placeholder","請在此輸入文字");
+				break;
+			case "decode":
+				$("#source").prop("placeholder","請在此輸入編碼內容");
+				break;
+			default:				
+				break;
+		}
+		
+	});
+	
+	function CopyText () {
+		
+		if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) { //使用javascript回傳使用者瀏覽裝置的版本
+		     //$("#resource").focus().select();
+			 $("#resource").get(0).setSelectionRange(0,9999);
+
+		}else{
+			$("#resource").focus().select();		
+			document.execCommand("Copy");
+			setTimeout("alert('複製完成')",300);
+		}
+
+	}
+
+	$("#btnSubmit").click(function () {
+
+		$("#resource").val("");
+		if($("#source").val() == ""){
+			$("#source").focus();
+			return alert("尚未輸入內容！");
+		}
+		debugger;
+		var sData = $("#source").val();
+		var codeType = $("#Codetype").val();
+		var encodedData = "";
+		
+		
+		switch(codeType)
+		{
+			case "encode":
+				encodedData = btoa(encodeURIComponent(sData));
+				break;
+			case "decode":
+				encodedData = decodeURIComponent(atob(sData));
+				break;
+			default:				
+				break;
+		}
+		$("#resource").val(encodedData);	
+		CopyText();
+		
+	});
+	
+	$("#makeCode").click(function () {
+		var codeStr = $("#resource").val();
+		$('#qrcode').empty();
+		$('#qrcode').qrcode({
+			width: 120,
+			height: 120,
+			text: codeStr
+		});
+		
+		downloadCanvas($('#download')[0],'test.png');
+		$('#qrcode').empty();		
+	});
+	
+	$("#resource").focus(function () {
+		this.select();
+	});
+
+	function downloadCanvas(link,filename) {
+		var oCanvas = $("#qrcode canvas")[0];
+		link.src = oCanvas.toDataURL();
+	}	
+
+	$("#Codetype").change();
+	
+  </script>
+
+</html>
