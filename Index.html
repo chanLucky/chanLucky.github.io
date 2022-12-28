@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  </head>
+  <body>    
+     <div class="block result-display">
+      <table>
+        <tr>
+          <td><button id="btnViewAns" disabled>看答案</button></td>
+          <td><button id="btnStart">重新遊戲</button></td>          
+        </tr>             
+      </table>  
+    </div>
+    <div class="block result-display" id="results">
+      <table id="tab_ques">
+        <tr>
+          <th colspan="4">答案</th>
+        </tr>
+        <tr id="ans">
+          <td><input type="text" id="num_1" readonly></input></td>
+          <td><input type="text" id="num_2" readonly></input></td>
+          <td><input type="text" id="num_3" readonly></input></td>
+          <td><input type="text" id="num_4" readonly></input></td>          
+        </tr>        
+      </table>  
+    </div>
+    <div  class="block result-display">
+      <table id="tab_ans">    
+        <tr>
+          <th colspan="5">作答</th>
+        </tr>   
+        <tr>
+          <td><input type="text" class="inputPriority" maxlength="1" id="uAns1"></input></td>
+          <td><input type="text" class="inputPriority" maxlength="1" id="uAns2"></input></td>
+          <td><input type="text" class="inputPriority" maxlength="1" id="uAns3"></input></td>
+          <td><input type="text" class="inputPriority" maxlength="1" id="uAns4"></input></td>
+          <td><button id="btnVerify" disabled>驗證</button></td>
+        </tr>        
+      </table>  
+    </div>
+    <div class="block result-display">
+      <textarea id="strVerify" style="width:150px;height:200px;"></textarea>  
+    </div>
+    <!-- Store data passed to template here, so it is available to the
+     imported JavaScript. -->
+     
+    <script>
+      
+    </script>
+    <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
+    <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+  </body>
+</html>
