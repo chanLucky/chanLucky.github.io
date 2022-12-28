@@ -21,7 +21,7 @@
               font-size: 30px !important;
               text-align: center;
             }
-            .numBtn,#btnStart,#btnVerify,#btnRemove{
+            .numBtn,#btnStart,#btnRemove{
                 width: 100%;
             }
             .divcontent{
@@ -123,11 +123,10 @@
     });
     $("#btnStart").click(function(){        
         $(".numBtn").prop('disabled', false);
-        $("#btnVerify").prop('disabled', false);
         $("#btnRemove").prop('disabled', false);
         getNum();
     });
-    $("#btnVerify").click(function(){    
+    var btnVerify = function(){    
         var re_A=0; 
         var re_B=0;
         var anstotal = "";    
@@ -165,7 +164,6 @@
                 alert("成功!");
             } else if(verifynum == 10){
                 $("#strVerify").val(tmpVerify);
-                $("#btnVerify").prop('disabled', true);  
                 $("#btnViewAns ").prop('disabled', true); 
                 $("#btnViewAns").click();
                 alert("遊戲結束");
@@ -176,7 +174,7 @@
             alert(err);
         } 
         $("#uAns").val("");  
-    });  
+    };  
     function getRandom(x){
     return Math.floor(Math.random()*x)+1;
     };
@@ -212,7 +210,7 @@
         if(uAns.length == 4){return;}
         $("#uAns").val(uAns + tnum);        
         if($("#uAns").val().length == 4){
-            $("#btnVerify").click();
+            btnVerify();
         }
     })
     $("#btnStart").click();
