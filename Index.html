@@ -3,6 +3,29 @@
   <head>
     <base target="_top">
   </head>
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+
+<style>
+.result-display {
+  margin-left: 15px;
+  font-size: 125%;
+}
+
+.error {
+  color: #FF0000;
+}
+
+.hidden {
+  display: none;
+}
+table tr{
+  width:100%;
+}
+td{
+  height:25px;  
+}
+</style>
+
   <body>    
      <div class="block result-display">
       <table>
@@ -53,3 +76,122 @@
     <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
   </body>
 </html>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+  var ans = {};
+  var verifynum = 0;
+  $(".inputPriority").prop('disabled', true);
+
+  $("#btnViewAns").click(function(){    
+    $("#ans").find("td>input").show();
+    $("#btnVerify").prop('disabled', true);    
+  });
+  $("#btnStart").click(function(){        
+    $("#ans").find("td>input").hide();
+    $("#btnVerify").prop('disabled', false);
+    $("#btnViewAns").prop('disabled', false);
+    $(".inputPriority").prop('disabled', false);
+    getNum();
+  });
+  $("#btnVerify").click(function(){    
+    var re_A=0; 
+    var re_B=0;
+    var anstotal = "";    
+    var v = {};
+    var err = ""; 
+    for(var i = 1; i<=4; i++){
+      var tmpAns = $("#uAns"+i).val();
+      if(v.hasOwnProperty(tmpAns)){
+        err = "輸入數值重複";
+        break;
+      }else{
+        v[tmpAns] = i;
+      }
+      anstotal += tmpAns;
+      if(ans.hasOwnProperty(tmpAns)){
+        if(ans[tmpAns] == i){
+          re_A += 1;
+        }else{
+          re_B += 1;
+        }
+      }
+    }    
+    if(err == ""){
+      verifynum+=1;  
+      
+      var re_string = anstotal + "=>"+ re_A+"A"+re_B+"B";      
+      var tmpVerify = $("#strVerify").val();
+      tmpVerify = tmpVerify + re_string + "\n";    
+
+      if(re_A == 4){
+        $("#strVerify").val(tmpVerify);
+        $("#btnViewAns").prop('disabled', true);
+        alert("成功!");
+      } else if(verifynum == 10){
+        $("#strVerify").val(tmpVerify);
+        $("#btnVerify").prop('disabled', true);  
+        $("#btnViewAns ").prop('disabled', true); 
+        $("#btnViewAns").click();
+        alert("遊戲結束");
+      }else{
+        $("#strVerify").val(tmpVerify);
+      }
+    }else{
+      alert(err);
+    }   
+  });  
+  function getRandom(x){
+    return Math.floor(Math.random()*x)+1;
+  };
+  function getNum(){  
+    $("#strVerify").val("");
+    verifynum=0;  
+    ans = {};
+    var n = 0;
+    //4個數字
+    for(i=1; i <= 4; i++){
+      n = getRandom(9);
+      if(ans.hasOwnProperty(n)){
+        i-=1;
+        continue;
+      }
+      else{
+        $("#num_"+i).val(n);
+        ans[n]=i;
+        if(!ans.hasOwnProperty("ans")){
+          ans["ans"] = n;
+        }else{
+          ans["ans"] = ans["ans"] +" " +n;
+        }
+        
+      };
+    };
+    //return ans;
+  };
+  $(".inputPriority").keydown(function(e){
+        if(e.keyCode == 229)
+          return false;
+          
+    }).bind("input",function(){          
+      var start = this.selectionStart;
+      var arrChar = this.value.split("");
+      var str = arrChar[start-1];
+      var keyCode = str.charCodeAt(0);
+      
+      if ( !(keyCode >= 48 && keyCode <= 57))
+      {
+        if(arrChar.length == start)
+        {
+          arrChar.pop();
+        }
+        else
+        {
+          arrChar.splice(start-1,1);
+        }
+        this.value = arrChar.join("");
+        this.setSelectionRange(start-1,start-1);
+      }
+    });
+</script>
+
