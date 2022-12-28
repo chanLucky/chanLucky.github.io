@@ -37,7 +37,7 @@ body {
 }
 
 .block + .block {
-  margin-top: 16px;
+  margin-top: 10px;
 }
 
 .inline {
@@ -125,7 +125,7 @@ table {
 th {
   border-bottom: 1px solid #acacac;
   font-weight: normal;
-  padding: 2px 0 11px 0;
+  padding: 2px 0 5px 0;
   text-align: left;
 }
 
