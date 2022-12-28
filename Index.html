@@ -2,29 +2,31 @@
 <html>
   <head>
     <base target="_top">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"> 
+	  <script type="text/javascript" src="./js/jquery-1.9.1.js"></script>
+    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css" >
+    <style>
+      .result-display {
+        margin-left: 15px;
+        font-size: 125%;
+      }
+    
+      .error {
+        color: #FF0000;
+      }
+    
+      .hidden {
+        display: none;
+      }
+      table tr{
+        width:100%;
+      }
+      td{
+        height:25px;  
+      }
+      </style>
+    
   </head>
-  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
-
-<style>
-.result-display {
-  margin-left: 15px;
-  font-size: 125%;
-}
-
-.error {
-  color: #FF0000;
-}
-
-.hidden {
-  display: none;
-}
-table tr{
-  width:100%;
-}
-td{
-  height:25px;  
-}
-</style>
 
   <body>    
      <div class="block result-display">
@@ -69,17 +71,7 @@ td{
      imported JavaScript. -->
      
     <script>
-      
-    </script>
-    <!-- Use a templated HTML printing scriptlet to import JavaScript. -->
-    <?!= HtmlService.createHtmlOutputFromFile('JavaScript').getContent(); ?>
-    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
-  </body>
-</html>
-
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-<script>
-  var ans = {};
+      var ans = {};
   var verifynum = 0;
   $(".inputPriority").prop('disabled', true);
 
@@ -193,5 +185,6 @@ td{
         this.setSelectionRange(start-1,start-1);
       }
     });
-</script>
-
+    </script>
+  </body>
+</html>
