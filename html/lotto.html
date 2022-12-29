@@ -6,14 +6,6 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="../assets/css/main.css" />
         <style>
-            .divcontent{
-                background-color: #ffffff;
-                color: #4E4852;
-                padding: 0 0 0 0;
-            }           
-            .wrap{
-                margin: 30px auto 0;
-            }
             .ball{
                 display: inline-block;
                 padding:0 !important;
@@ -35,9 +27,22 @@
 		<!-- Page Wrapper -->
 			<div id="page-wrapper">
 				<!-- Header -->
-					<header id="header">
-						<h1><a href="../index.html">Lalibrary</a></h1>
-					</header>
+                <header id="header">
+                    <h1><a href="../index.html">Lalibrary</a></h1>
+                    <nav id="nav">
+                        <ul>
+                            <li class="special">
+                                <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                                <div id="menu">
+                                    <ul>
+                                        <li><a href="../index.html">Home</a></li>
+                                        <li><a href="game.html">GAME</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                </header>
 				<!-- Main -->
                 <article id="main">   
                     <header>
@@ -45,7 +50,7 @@
                         <p>樂透自動選號</p>
                     </header>                 
                     <section class="wrapper style5">
-                        <div class="divcontent wrapper style5" >
+                        <div class="wrapper style5" >
                             <div>
                                 <button id="btnAutoNum">自動選號</button>                                
                             </div>  
@@ -55,30 +60,30 @@
                                     <option value="big">大樂透</option>
                                     <option value="pow">威力彩</option>
                                 </select>
-                            </div>
-                            <ul class="actions fit" style="margin:5px">
-                                <li class="ball ball0" id = "lotteryBall0"></li>
-                                <li class="ball ball0" id = "lotteryBall1"></li>
-                                <li class="ball ball0" id = "lotteryBall2"></li>
-                                <li class="ball ball0" id = "lotteryBall3"></li>
-                                <li class="ball ball0" id = "lotteryBall4"></li>
-                                <li class="ball ball0" id = "lotteryBall5"></li>
-                            </ul> 
-                            <ul class="actions" style="margin:5px">
-                                <li class="ball ball1" id = "lotteryBall0"></li>
-                            </ul>    
+                            </div> 
+                            <div class="wrapper style5" >
+                                <ul class="actions fit">
+                                    <li class="ball ball0" id = "lotteryBall0"></li>
+                                    <li class="ball ball0" id = "lotteryBall1"></li>
+                                    <li class="ball ball0" id = "lotteryBall2"></li>
+                                    <li class="ball ball0" id = "lotteryBall3"></li>
+                                    <li class="ball ball0" id = "lotteryBall4"></li>
+                                    <li class="ball ball0" id = "lotteryBall5"></li>
+                                </ul> 
+                                <ul class="actions" style="margin-left: -1.5em;">
+                                    <li class="ball ball1" id = "lotteryBall0"></li>
+                                </ul>
+                            </div>                                                      
                         </div> 
-                    </section>                     
-                                    
+                    </section>   
+                    
                 </article>
-                
-
 				<!-- Footer -->
-					<footer id="footer" style="height:30px;padding: 1em 0 2em 0;">
-						<ul class="copyright">
-							<li>&copy; Lucky</li>
-						</ul>
-					</footer>
+                <footer id="footer" style="height:30px;padding: 1em 0 2em 0;">
+                    <ul class="copyright">
+                        <li>&copy; Lucky</li>
+                    </ul>
+                </footer>
 			</div>
  
 		<!-- Scripts -->
