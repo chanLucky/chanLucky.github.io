@@ -24,25 +24,36 @@
             .numBtn,#btnStart,#btnRemove{
                 width: 100%;
             }
-            .divcontent{
-                background-color: #ffffff;
-                color: #4E4852;
+            /* .divcontent{
                 padding: 0 0 0 0;
-            }
-            </style>
+            } */
+        </style>
 	</head>
 	<body>
 		<!-- Page Wrapper -->
-			<div id="page-wrapper">
-				<!-- Header -->
-					<header id="header">
-						<h1><a href="../index.html">Lalibrary</a></h1>
-					</header>
-				<!-- Main -->
-                <article id="main">
-                    <div class="divcontent wrapper style5" >
-                        <div class="block result-display">
-                          <table >
+        <div id="page-wrapper">
+            <!-- Header -->
+            <header id="header">
+                <h1><a href="../index.html">Lalibrary</a></h1>
+                <nav id="nav">
+                    <ul>
+                        <li class="special">
+                            <a href="#menu" class="menuToggle"><span>Menu</span></a>
+                            <div id="menu">
+                                <ul>
+                                    <li><a href="../index.html">Home</a></li>
+                                    <li><a href="game.html">GAME</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            </header>
+            <!-- Main -->
+            <article id="main">
+                <div class="wrapper style5" >
+                    <!-- <div class="block result-display"> -->
+                        <table>
                             <tr><textarea id="strVerify" style="height:100px;font-size: 28px;text-align: center;resize: none;" readonly></textarea></tr>
                             <tr>
                                 <td style="text-align: center;">
@@ -75,145 +86,143 @@
                                     </table>
                                 </td>
                             </tr>          
-                          </table>  
-                        </div>
-                        <div class="block result-display" id="results" style="display: none;">
-                          <table id="tab_ques">
-                            <tr id="ans">
-                              <td><input type="text" class="numtext" id="num_1" readonly></input></td>
-                              <td><input type="text" class="numtext" id="num_2" readonly></input></td>
-                              <td><input type="text" class="numtext" id="num_3" readonly></input></td>
-                              <td><input type="text" class="numtext" id="num_4" readonly></input></td>          
-                            </tr>        
-                          </table>  
-                        </div>
-                      </div> 
-                </article>
-                
-
-				<!-- Footer -->
-					<footer id="footer" style="height:30px;padding: 1em 0 2em 0;">
-						<ul class="copyright">
-							<li>&copy; Lucky</li>
-						</ul>
-					</footer>
-			</div>
+                        </table>  
+                    <!-- </div> -->
+                    <div class="block result-display" id="results" style="display: none;">
+                        <table id="tab_ques">
+                        <tr id="ans">
+                            <td><input type="text" class="numtext" id="num_1" readonly></input></td>
+                            <td><input type="text" class="numtext" id="num_2" readonly></input></td>
+                            <td><input type="text" class="numtext" id="num_3" readonly></input></td>
+                            <td><input type="text" class="numtext" id="num_4" readonly></input></td>          
+                        </tr>        
+                        </table>  
+                    </div>
+                </div> 
+            </article>
+            <!-- Footer -->
+            <footer id="footer" style="height:30px;padding: 1em 0 2em 0;">
+                <ul class="copyright">
+                    <li>&copy; Lucky</li>
+                </ul>
+            </footer>
+        </div>
  
 		<!-- Scripts -->
-			<script src="../assets/js/jquery.min.js"></script>
-			<script src="../assets/js/jquery.scrollex.min.js"></script>
-			<script src="../assets/js/jquery.scrolly.min.js"></script>
-			<script src="../assets/js/skel.min.js"></script>
-			<script src="../assets/js/util.js"></script>
-			<script src="../assets/js/main.js"></script>
-			<script src="../js/jsencryptionform.js" type="text/javascript"></script>
-  			<script src="../js/jsencryption.js" type="text/javascript"></script>
+        <script src="../assets/js/jquery.min.js"></script>
+        <script src="../assets/js/jquery.scrollex.min.js"></script>
+        <script src="../assets/js/jquery.scrolly.min.js"></script>
+        <script src="../assets/js/skel.min.js"></script>
+        <script src="../assets/js/util.js"></script>
+        <script src="../assets/js/main.js"></script>
+        <script src="../js/jsencryptionform.js" type="text/javascript"></script>
+        <script src="../js/jsencryption.js" type="text/javascript"></script>
 
 	</body>
 	<script>
-	var ans = {};
-    var verifynum = 0;
-    $("#btnRemove").click(function(){    
-        var uAns = $("#uAns").val();
-        if(uAns.length == 0 ){
-            return;
-        }        
-        var nAns = uAns.substr(0,uAns.length - 1)
-        $("#uAns").val(nAns); 
-    });
-    $("#btnStart").click(function(){        
-        $(".numBtn").prop('disabled', false);
-        $("#btnRemove").prop('disabled', false);
-        getNum();
-    });
-    var btnVerify = function(){    
-        var re_A=0; 
-        var re_B=0;
-        var anstotal = "";    
-        var v = {};
-        var err = ""; 
-        var tmpAnsarr = $("#uAns").val();    
-        tmpAnsarr = tmpAnsarr.split("");
-        for(var i = 0; i<4; i++){
-            var tmpAns =tmpAnsarr[i];
-            if(v.hasOwnProperty(tmpAns)){
-                err = "輸入數值重複";
-                break;
-            }else{
-                v[tmpAns] = i;
-            }
-            anstotal += tmpAns;
-            if(ans.hasOwnProperty(tmpAns)){
-                if(ans[tmpAns] == i){
-                    re_A += 1;
-                }else{
-                    re_B += 1;
-                }
-            }
-        }    
-        if(err == ""){
-            verifynum+=1;  
-            
-            var re_string = anstotal + "=>"+ re_A+"A"+re_B+"B";      
-            var tmpVerify = $("#strVerify").val();
-            tmpVerify = verifynum + "." + re_string + "\n" + tmpVerify;    
-
-            if(re_A == 4){
-                $("#strVerify").val(tmpVerify);
-                $("#btnViewAns").prop('disabled', true);
-                alert("成功!");
-            } else if(verifynum == 10){
-                $("#strVerify").val(tmpVerify);
-                $("#btnViewAns ").prop('disabled', true); 
-                $("#btnViewAns").click();
-                alert("遊戲結束");
-            }else{
-                $("#strVerify").val(tmpVerify);
+        var ans = {};
+        var verifynum = 0;
+        $("#btnRemove").click(function(){    
+            var uAns = $("#uAns").val();
+            if(uAns.length == 0 ){
+                return;
             }        
-        }else{
-            alert(err);
-        } 
-        $("#uAns").val("");  
-    };  
-    function getRandom(x){
-    return Math.floor(Math.random()*x)+1;
-    };
-    function getNum(){  
-    $("#strVerify").val("---遊戲開始---");
-    verifynum=0;  
-    ans = {};
-    var n = 0;
-    //4個數字
-    for(i=0; i < 4; i++){
-        n = getRandom(9);
-        if(ans.hasOwnProperty(n)){
-        i-=1;
-        continue;
-        }
-        else{
-        $("#num_"+i).val(n);
-        ans[n]=i;
-        if(!ans.hasOwnProperty("ans")){
-            ans["ans"] = n;
-        }else{
-            ans["ans"] = ans["ans"] +" " +n;
-        }
-        
+            var nAns = uAns.substr(0,uAns.length - 1)
+            $("#uAns").val(nAns); 
+        });
+        $("#btnStart").click(function(){        
+            $(".numBtn").prop('disabled', false);
+            $("#btnRemove").prop('disabled', false);
+            getNum();
+        });
+        function btnVerify(){    
+            var re_A=0; 
+            var re_B=0;
+            var anstotal = "";    
+            var v = {};
+            var err = ""; 
+            var tmpAnsarr = $("#uAns").val();    
+            tmpAnsarr = tmpAnsarr.split("");
+            for(var i = 0; i<4; i++){
+                var tmpAns =tmpAnsarr[i];
+                if(v.hasOwnProperty(tmpAns)){
+                    err = "輸入數值重複";
+                    break;
+                }else{
+                    v[tmpAns] = i;
+                }
+                anstotal += tmpAns;
+                if(ans.hasOwnProperty(tmpAns)){
+                    if(ans[tmpAns] == i){
+                        re_A += 1;
+                    }else{
+                        re_B += 1;
+                    }
+                }
+            }    
+            if(err == ""){
+                verifynum+=1;  
+                
+                var re_string = anstotal + "=>"+ re_A+"A"+re_B+"B";      
+                var tmpVerify = $("#strVerify").val();
+                tmpVerify = verifynum + "." + re_string + "\n" + tmpVerify;    
+
+                if(re_A == 4){
+                    $("#strVerify").val(tmpVerify);
+                    $("#btnViewAns").prop('disabled', true);
+                    alert("成功!");
+                } else if(verifynum == 10){
+                    $("#strVerify").val(tmpVerify);
+                    $("#btnViewAns ").prop('disabled', true); 
+                    $("#btnViewAns").click();
+                    alert("遊戲結束");
+                }else{
+                    $("#strVerify").val(tmpVerify);
+                }        
+            }else{
+                alert(err);
+            } 
+            $("#uAns").val("");  
+        };  
+        function getRandom(x){
+            return Math.floor(Math.random()*x)+1;
         };
-    };
-    //return ans;
-    };
-    
-    $(".numBtn").click(function(e){
-        var tnum = $(this).attr("val");
-        var uAns = $("#uAns").val();
-        if(uAns.length == 4){return;}
-        $("#uAns").val(uAns + tnum);        
-        if($("#uAns").val().length == 4){
-            btnVerify();
-        }
-    })
-    $("#btnStart").click();
-  </script>
+        function getNum(){  
+            $("#strVerify").val("---遊戲開始---");
+            verifynum=0;  
+            ans = {};
+            var n = 0;
+            //4個數字
+            for(i=0; i < 4; i++){
+                n = getRandom(9);
+                if(ans.hasOwnProperty(n)){
+                i-=1;
+                continue;
+                }
+                else{
+                $("#num_"+i).val(n);
+                ans[n]=i;
+                if(!ans.hasOwnProperty("ans")){
+                    ans["ans"] = n;
+                }else{
+                    ans["ans"] = ans["ans"] +" " +n;
+                }
+                
+                };
+            };
+            //return ans;
+        };
+
+        $(".numBtn").click(function(e){
+            var tnum = $(this).attr("val");
+            var uAns = $("#uAns").val();
+            if(uAns.length == 4){return;}
+            $("#uAns").val(uAns + tnum);        
+            if($("#uAns").val().length == 4){
+                btnVerify();
+            }
+        })
+        $("#btnStart").click();
+    </script>
 
 </html>
