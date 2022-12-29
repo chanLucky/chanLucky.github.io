@@ -10,38 +10,24 @@
                 background-color: #ffffff;
                 color: #4E4852;
                 padding: 0 0 0 0;
-            }
-           
+            }           
             .wrap{
-                margin: 60px auto 0;
-                /*width: 420px;  */
+                margin: 30px auto 0;
             }
-
-            .ball0{
+            .ball{
                 display: inline-block;
-                width: 50px;
-                height:50px;
+                padding:0 !important;
+                border-radius : 50%;
+                text-align: center;
+                font-size: auto;
+            }
+            .ball0{
                 background : #ff2d2d;
                 color : #ffffff;
-                border-radius : 50%;
-                margin-left: 5px;
-                margin-right:5px;
-                text-align: center;
-                line-height: 50px;
-                font-size: 25px;
             }
             .ball1{
-                display: inline-block;
-                width: 50px;
-                height:50px;
                 background : #d18700;
                 color : #ffffff;
-                border-radius : 50%;
-                margin-left: 5px;
-                margin-right:5px;
-                text-align: center;
-                line-height: 50px;
-                font-size: 25px;
             }
         </style>
 	</head>
@@ -70,17 +56,20 @@
                                     <option value="pow">威力彩</option>
                                 </select>
                             </div>
-                            <div class="wrap" id="lottery">
-                                <div class="ball0" id = "lotteryBall0"></div>
-                                <div class="ball0" id = "lotteryBall1"></div>
-                                <div class="ball0" id = "lotteryBall2"></div>
-                                <div class="ball0" id = "lotteryBall3"></div>
-                                <div class="ball0" id = "lotteryBall4"></div>
-                                <div class="ball0" id = "lotteryBall5"></div>  
-                                <div class="ball1" id = "lotteryBall0" style="display: none;"></div>  
-                            </div>
+                            <ul class="actions fit" style="margin:5px">
+                                <li class="ball ball0" id = "lotteryBall0"></li>
+                                <li class="ball ball0" id = "lotteryBall1"></li>
+                                <li class="ball ball0" id = "lotteryBall2"></li>
+                                <li class="ball ball0" id = "lotteryBall3"></li>
+                                <li class="ball ball0" id = "lotteryBall4"></li>
+                                <li class="ball ball0" id = "lotteryBall5"></li>
+                            </ul> 
+                            <ul class="actions" style="margin:5px">
+                                <li class="ball ball1" id = "lotteryBall0"></li>
+                            </ul>    
                         </div> 
-                    </section>                    
+                    </section>                     
+                                    
                 </article>
                 
 
@@ -104,6 +93,7 @@
 
 	</body>
 	<script>
+        
         const lottoObj = {"big":[{"cnt":6,"random":49,}],"pow":[{"cnt":6,"random":38},{"cnt":1,"random":8}]};
         //產生大樂透號碼的function
         function getRandom(x){
@@ -137,7 +127,10 @@
         };
 
         $("#btnAutoNum").click(function(){            
-            getAutoNum();//產生
+            $(".ball").css("line-height", $(".ball").css("width"));
+            $(".ball1").css("line-height", $(".ball").css("width"));
+            $(".ball1").css("width", $(".ball").css("width"));
+            getAutoNum();//產生            
         });
     </script>
 </html>
