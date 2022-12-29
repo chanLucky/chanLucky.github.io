@@ -5,28 +5,19 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="../assets/css/main.css" />
-        <style>
-            .result-display {
-              margin-left: 15px;
-              font-size: 125%;
-            }    
-            .error {
-              color: #FF0000;
-            }    
+        <style>    
             .hidden {
               display: none;
             }           
-            .numtext ,.inputPriority{             
+            .inputPriority{             
               height: 40px !important;
               font-size: 30px !important;
               text-align: center;
             }
             .numBtn,#btnStart,#btnRemove{
                 width: 100%;
+                min-height: 5em;
             }
-            /* .divcontent{
-                padding: 0 0 0 0;
-            } */
         </style>
 	</head>
 	<body>
@@ -52,43 +43,41 @@
             <!-- Main -->
             <article id="main">
                 <div class="wrapper style5" >
-                    <!-- <div class="block result-display"> -->
-                        <table>
-                            <tr><textarea id="strVerify" style="height:100px;font-size: 28px;text-align: center;resize: none;" readonly></textarea></tr>
-                            <tr>
-                                <td style="text-align: center;">
-                                    <table style="table-layout:fixed">
-                                        <tr>
-                                            <td style="height:25px;" colspan="3">
-                                                <input type="text" class="inputPriority" maxlength="4" id="uAns" readonly/>                                         
-                                            </td>
-                                        </tr> 
-                                        <tr>
-                                            <td><button class="numBtn" id="btn1" val="1" disabled>1</button></td>
-                                            <td><button class="numBtn" id="btn2" val="2" disabled>2</button></td>
-                                            <td><button class="numBtn" id="btn3" val="3" disabled>3</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><button class="numBtn" id="btn4" val="4" disabled>4</button></td>
-                                            <td><button class="numBtn" id="btn5" val="5" disabled>5</button></td>
-                                            <td><button class="numBtn" id="btn6" val="6" disabled>6</button></td>
-                                        </tr>
-                                        <tr>
-                                            <td><button class="numBtn" id="btn7" val="7" disabled>7</button></td>
-                                            <td><button class="numBtn" id="btn8" val="8" disabled>8</button></td>
-                                            <td><button class="numBtn" id="btn9" val="9" disabled>9</button></td>
-                                        </tr>
-                                        <tr>                                        
-                                            <td><button id="btnStart"><i class="icon fa-rotate-right"></i></button></td>
-                                            <td></td>
-                                            <td><button id="btnRemove" disabled><i class="icon fa-arrow-left"></i></button></td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>          
-                        </table>  
-                    <!-- </div> -->
-                    <div class="block result-display" id="results" style="display: none;">
+                    <table>
+                        <tr><textarea id="strVerify" style="height:100px;font-size: 25px;text-align: center;resize: none;" readonly></textarea></tr>
+                        <tr>
+                            <td style="text-align: center;">
+                                <table style="table-layout:fixed">
+                                    <tr>
+                                        <td style="height:25px;" colspan="3">
+                                            <input type="text" class="inputPriority" maxlength="4" id="uAns" readonly/>                                         
+                                        </td>
+                                    </tr> 
+                                    <tr>
+                                        <td><button class="numBtn" id="btn1" val="1" disabled>1</button></td>
+                                        <td><button class="numBtn" id="btn2" val="2" disabled>2</button></td>
+                                        <td><button class="numBtn" id="btn3" val="3" disabled>3</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button class="numBtn" id="btn4" val="4" disabled>4</button></td>
+                                        <td><button class="numBtn" id="btn5" val="5" disabled>5</button></td>
+                                        <td><button class="numBtn" id="btn6" val="6" disabled>6</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td><button class="numBtn" id="btn7" val="7" disabled>7</button></td>
+                                        <td><button class="numBtn" id="btn8" val="8" disabled>8</button></td>
+                                        <td><button class="numBtn" id="btn9" val="9" disabled>9</button></td>
+                                    </tr>
+                                    <tr>                                        
+                                        <td><button id="btnStart"><i class="icon fa-rotate-right"></i></button></td>
+                                        <td></td>
+                                        <td><button id="btnRemove" disabled><i class="icon fa-arrow-left"></i></button></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>          
+                    </table>  
+                    <div class="block" id="results" style="display: none;">
                         <table id="tab_ques">
                         <tr id="ans">
                             <td><input type="text" class="numtext" id="num_1" readonly></input></td>
