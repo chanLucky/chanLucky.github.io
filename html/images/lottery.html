@@ -1,0 +1,184 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>翻牌小遊戲</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+        <style>       
+ 
+        #list ul li {
+            width: 60px;
+            height: 60px;
+            line-height: 30px;
+            text-align: center;
+            margin: 10px;
+            float: left;
+            background-color: #fff;
+            color: white;
+        }
+        #list ul:after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+ 
+        #list p {
+            margin: 20px auto;
+            text-align: center;
+        }
+ 
+        #list .btn {
+            width: 100px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            border: none;
+            background-color: skyblue;
+        }
+        .lottery {
+              width: 100%;
+              height: 100%;
+              padding: 20px; 
+              text-align: center;
+              vertical-align: middle;             
+              border-radius: 5px;
+              background: #c2e5e0;
+              -webkit-backface-visibility: hidden;
+              backface-visibility: hidden;
+            }
+        .mark img{
+            border: 2px solid red;
+        }
+        </style>
+	</head>
+	<body class="is-preload">
+		<!-- Page Wrapper -->
+		<div id="page-wrapper">
+			<!-- Header -->
+			<header id="header">
+				<h1><a href="../index.html">Lalibrary</a></h1>
+				<nav>
+					<a href="#menu">Menu</a>
+				</nav>
+			</header>
+			<!-- Menu -->
+			<nav id="menu">
+				<div class="inner">
+					<h2>Menu</h2>
+					<ul class="links">
+						<li><a href="../index.html">Home</a></li>
+						<li><a href="game.html">GAME</a></li>
+					</ul>
+					<a href="#" class="close">Close</a>
+				</div>
+			</nav>
+
+			<!-- Wrapper -->
+			<section id="wrapper">
+				<header>
+					<div class="inner">
+						<h2>抽獎</h2>
+						<p>抽獎</p>
+					</div>
+				</header>
+
+				<!-- Content -->
+				<div class="wrapper">
+					<div class="inner">
+                        <section class="memory-game">                           
+                            <div class="box alt">
+                                <div class="align-center">
+                                    <div class="col-12">
+                                        <button onclick="" title="按鈕" style="width:50%">抽獎</button>    
+                                    </div>                 
+                                </div>
+                                <div class="row gtr-uniform">
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4" >
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>
+                                    <div class="col-4">
+                                        <img class="lottery" src="images/1.png"/>
+                                    </div>                                    
+                                </div>
+                            </div>                            
+                        </section>						
+					</div>
+				</div>
+			</section>
+
+			<!-- Footer -->
+			<section id="footer">
+				<div class="inner">
+					<ul class="copyright">
+					  <li>&copy; Lucky</li>
+					</ul>
+				  </div>
+			</section>
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+	</body>
+    <script>
+        var btn = document.getElementsByTagName("button")[0];
+        btn.className = "btn";
+   
+    var lis = $(".lottery"); 
+    btn.onclick = function () {
+
+        btn.disabled = true;
+        var timer = setInterval(function () {
+            for (var i = 0; i < lis.length; i++) {
+                lis[i].style.backgroundColor = getColor();
+                lis[i].classList.remove("mark");
+            }
+        }, 100);
+        setTimeout(function (){
+            clearInterval(timer)
+            for (var i = 0; i < lis.length; i++) {
+                //lis[i].style.backgroundColor = "#ffa50082"
+                lis[i].style.backgroundColor = "#fff"
+                //lis[i].classList.remove("mark");
+            }
+            var index = Math.floor( Math.random() * lis.length )
+            lis[index].style.backgroundColor = "#ff0000";
+            //lis[index].classList.add("mark");
+            lis[index]
+            btn.disabled = false;
+             
+        }, 2000)
+    }
+    function getColor() {
+        return "#" + Math.random().toString(16).substr(2, 6)+"82";
+    }
+    </script>
+</html>
