@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>機器人挑戰：旋轉十字優化版</title>
+    <style>
+    :root { --cell-size: 80px; --card-color: #6c5ce7; --card-bg: #f3f0ff; }
+    body { font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; background: #eceff1; display: flex; justify-content: center; align-items: flex-start; padding-top: 50px; margin: 0; }
+    .main-container { display: flex; gap: 30px; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+    .game-section { text-align: center; }
+    #grid { display: grid; grid-template-columns: repeat(4, var(--cell-size)); gap: 10px; background: #8db596; padding: 15px; border-radius: 12px; margin: 15px 0; }
+    .cell { width: var(--cell-size); height: var(--cell-size); background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 35px; cursor: pointer; position: relative; border-bottom: 4px solid #ccc; overflow: hidden; }
+    .sidebar { width: 230px; display: flex; flex-direction: column; gap: 12px; border-left: 2px solid #eee; padding-left: 25px; }
+    .sidebar-title { font-weight: bold; color: #546e7a; margin-bottom: 5px; font-size: 14px; text-align: left; }
+    .card-btn { width: 100%; padding: 8px; background: #fff; border: 2px solid var(--card-color); border-radius: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.2s; font-size: 14px; font-weight: bold; color: var(--card-color); }
+    .btn-icon-wrapper { width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; background: var(--card-bg); border-radius: 5px; font-size: 32px; line-height: 1; flex-shrink: 0; overflow: hidden; }
+    .card-btn.active { background: var(--card-color); color: white; transform: translateX(5px); }
+    .card-btn.active .btn-icon-wrapper { background: rgba(255,255,255,0.2); color: white; }
+    
+    .card-btn.active svg { stroke: white !important; }
+    .card-btn.active circle { fill: white !important; }
+
+    .bush { background: #2d5a27 !important; color: white; }
+    .robot-edit { background: #3498db !important; color: white !important; border-radius: 50%; border: 3px solid #f1c40f; z-index: 10; }
+    .robot-active { background: #3498db !important; color: white !important; border-radius: 50%; z-index: 10; }
+    .home { background: #ff7675 !important; color: white; }
+    .icon-box { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+    .controls { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+    button.action-btn { padding: 12px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; color: white; font-weight: bold; }
+    #status-bar { background: #37474f; color: white; padding: 10px 20px; border-radius: 50px; font-size: 14px; margin-bottom: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="game-section">
+        <select id="level-select" onchange="loadLevel(this.value)" style="width:100%; padding:10px; border-radius:8px;">
+            <option value="0">任務 1</option>
+            <option value="1">任務 2</option>
+            <option value="2">任務 3</option>
+            <option value="3">任務 4</option>
+            <option value="4">任務 5</option>
+            <option value="5">任務 6</option>
+            <option value="6">任務 7</option>
+            <option value="7">任務 8</option>
+        </select>
+        <div id="status-bar" style="margin-top:15px;">❤️: 0 | 🤖 點擊機器人設定方向</div>
+        <div id="grid"></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="sidebar-title">指令庫</div>
+        <div class="card-btn" data-type="DR"><div class="btn-icon-wrapper">┌</div> 下 ↔ 右</div>
+        <div class="card-btn" data-type="DL"><div class="btn-icon-wrapper">┐</div> 下 ↔ 左</div>
+        <div class="card-btn" data-type="UR"><div class="btn-icon-wrapper">└</div> 上 ↔ 右</div>
+        <div class="card-btn" data-type="UL"><div class="btn-icon-wrapper">┘</div> 上 ↔ 左</div>
+        <div class="card-btn" data-type="ROTATE_CW" id="rotate-btn">
+            <div class="btn-icon-wrapper" id="rotate-icon-div"></div> 旋轉十字
+        </div>
+        <div class="card-btn" data-type="ERASE" style="border-color:#e74c3c; color:#e74c3c"><div class="btn-icon-wrapper">🗑</div> 清除</div>
+
+        <div class="controls">
+            <button class="action-btn" style="background:#27ae60" onclick="run()">▶ 執行</button>
+            <button class="action-btn" style="background:#e67e22" onclick="resetState()">🔄 重置狀態</button>
+            <button class="action-btn" style="background:#90a4ae" onclick="clearCards()">🧹 移除路徑</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const size = 4;
+    let selected = null, power = 0, running = false, currentLevelIdx = 0;
+
+    const SVG_ROTATE_CW = `
+        <svg viewBox="0 0 100 100" style="width: 100%; height: 100%; fill: none; stroke: var(--card-color); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round;">
+            <circle cx="50" cy="50" r="4" fill="var(--card-color)" stroke="none"/>            
+            <path d="M 50 100 V 80 A 20 20 0 0 1 60 60 H 100" />            
+            <path d="M 0 50 H 20 A 20 20 0 0 1 40 40 V 0" />            
+            <path d="M 50 0 V 20 A 20 20 0 0 1 40 40 H 0" />            
+            <path d="M 100 50 H 80 A 20 20 0 0 1 60 60 V 100" />
+        </svg>`;
+
+    const levels = [
+        { map: [['0','0','M','H'],['0','P','0','B'],['0','0','0','0'],['0','R','0','0']], start: {r:3, c:1, dir:'U'} },
+        { map: [['0','0','0','H'],['0','P','M','0'],['M','0','B','P'],['0','0','0','R']], start: {r:3, c:3, dir:'L'} },
+        { map: [['0','M','0','H'],['0','P','0','0'],['0','0','0','0'],['R','0','0','0']], start: {r:3, c:0, dir:'R'} },
+        { map: [['M','0','M','H'],['0','P','0','0'],['0','0','0','0'],['R','0','0','0']], start: {r:3, c:0, dir:'R'} },
+        { map: [['M','0','M','H'],['0','P','0','0'],['0','0','P','0'],['R','0','0','0']], start: {r:3, c:0, dir:'R'} },
+        {map: [  ['0', '0', '0', 'H'],  ['B', 'B', '0', 'B'],  ['0', '0', '0', '0'],  ['R', '0', '0', '0']],start: { r:3, c:0, dir:'R' }},
+        {map: [
+  ['0', 'M', '0', 'H'],
+  ['0', 'B', '0', '0'],
+  ['0', 'P', '0', '0'],
+  ['R', '0', '0', '0']
+],
+start: { r:3, c:0, dir:'R' }},
+{map: [
+  ['0', 'M', '0', 'H'],
+  ['0', 'B', '0', '0'],
+  ['0', 'P', '0', '0'],
+  ['0', 'R', '0', '0']
+],
+start: { r:3, c:1, dir:'U' }}
+    ];
+
+    let currentMap = [], playerBoard = Array(size).fill().map(()=>Array(size).fill(null)), bot = {r:0, c:0, dir:'U'};
+
+    function loadLevel(idx) {
+        currentLevelIdx = idx; 
+        currentMap = levels[idx].map.map(r => [...r]);
+        bot = {...levels[idx].start}; 
+        power = 0; 
+        running = false; 
+        // 變更任務時清除指令路徑
+        playerBoard = Array(size).fill().map(()=>Array(size).fill(null)); 
+        render();
+    }
+
+    function rotateRobot() {
+        if(running) return;
+        const d = ['U','R','D','L']; bot.dir = d[(d.indexOf(bot.dir)+1)%4];
+        levels[currentLevelIdx].start.dir = bot.dir; render();
+    }
+
+    function render() {
+        const g = document.getElementById('grid'); g.innerHTML = '';
+        const dirIcons = {U:'▲', R:'▶', D:'▼', L:'◀'};
+        for(let r=0; r<size; r++) {
+            for(let c=0; c<size; c++) {
+                const div = document.createElement('div'); div.className = 'cell';
+                const type = currentMap[r][c];
+                if(type !== '0') {
+                    if(type==='B') { div.classList.add('bush'); div.innerText='🌿'; }
+                    else if(type==='H') { div.classList.add('home'); div.innerText='🏠'; }
+                    else if(type==='M') div.innerText='👾';
+                    else if(type==='P') div.innerText='❤️';
+                }
+                if(playerBoard[r][c] && (type === '0' || type === 'R')) {
+                    const iconBox = document.createElement('div'); iconBox.className = 'icon-box';
+                    if(playerBoard[r][c] === 'ROTATE_CW') iconBox.innerHTML = SVG_ROTATE_CW;
+                    else { iconBox.innerText = {'DR':'┌','DL':'┐','UR':'└','UL':'┘'}[playerBoard[r][c]]; iconBox.style.color = "var(--card-color)"; iconBox.style.fontSize="45px"; iconBox.style.fontWeight="bold";}
+                    if(running) iconBox.style.opacity = "0.3";
+                    div.appendChild(iconBox);
+                }
+                if(!running && (type === '0' || type === 'R')) {
+                    div.onclick = () => { playerBoard[r][c] = (selected==='ERASE')?null:selected; render(); };
+                }
+                if(!running && type === 'R') {
+                    div.classList.add('robot-edit'); div.innerText = dirIcons[bot.dir];
+                    div.onclick = (e) => { e.stopPropagation(); rotateRobot(); };
+                }
+                if(running && bot.r===r && bot.c===c) { div.classList.add('robot-active'); div.innerText = dirIcons[bot.dir]; }
+                g.appendChild(div);
+            }
+        }
+        document.getElementById('status-bar').innerText = `❤️ 愛心: ${power} | 🤖 方向: ${dirIcons[bot.dir]}`;
+        document.getElementById('rotate-icon-div').innerHTML = SVG_ROTATE_CW;
+    }
+
+    document.querySelectorAll('.card-btn').forEach(b => {
+        b.onclick = () => { document.querySelectorAll('.card-btn').forEach(x => x.classList.remove('active'));
+            selected = b.dataset.type; if(selected !== 'ERASE') b.classList.add('active'); };
+    });
+
+    function resetState() { if(running) return; currentMap = levels[currentLevelIdx].map.map(r => [...r]); bot = {...levels[currentLevelIdx].start}; power = 0; render(); }
+    function clearCards() { if(running) return; playerBoard = Array(size).fill().map(()=>Array(size).fill(null)); render(); }
+
+    async function run() {
+        if(running) return; running = true;
+        while(running) {
+            // 遇到草叢自動往反方向走的邏輯
+            let nextR = bot.r, nextC = bot.c;
+            if(bot.dir==='U') nextR--; else if(bot.dir==='D') nextR++;
+            else if(bot.dir==='L') nextC--; else if(bot.dir==='R') nextC++;
+
+            // 預判下一步：如果是草叢，方向立刻反轉
+            if(nextR >= 0 && nextR < size && nextC >= 0 && nextC < size && currentMap[nextR][nextC] === 'B') {
+                const reverse = { 'U':'D', 'D':'U', 'L':'R', 'R':'L' };
+                bot.dir = reverse[bot.dir];
+                render(); 
+                await new Promise(r => setTimeout(r, 300)); // 給個短暫停頓感
+            }
+
+            let card = playerBoard[bot.r][bot.c];
+            if(card && (currentMap[bot.r][bot.c] === '0' || currentMap[bot.r][bot.c] === 'R')) {
+                if(card==='DR') { if(bot.dir==='U') bot.dir='R'; else if(bot.dir==='L') bot.dir='D'; else break; }
+                else if(card==='DL') { if(bot.dir==='U') bot.dir='L'; else if(bot.dir==='R') bot.dir='D'; else break; }
+                else if(card==='UR') { if(bot.dir==='D') bot.dir='R'; else if(bot.dir==='L') bot.dir='U'; else break; }
+                else if(card==='UL') { if(bot.dir==='D') bot.dir='L'; else if(bot.dir==='R') bot.dir='U'; else break; }
+                else if (card === 'ROTATE_CW') {
+                    const rotateLogic = { 'R': 'U', 'U': 'L', 'L': 'D', 'D': 'R' };
+                    if (rotateLogic[bot.dir]) { bot.dir = rotateLogic[bot.dir]; } 
+                    else { alert("軌道不通！"); break; }
+                }
+            }
+
+            if(bot.dir==='U') bot.r--; else if(bot.dir==='D') bot.r++;
+            else if(bot.dir==='L') bot.c--; else if(bot.dir==='R') bot.c++;
+
+            if(bot.r<0 || bot.r>=size || bot.c<0 || bot.c>=size) { alert("出界失敗！"); break; }
+            let t = currentMap[bot.r][bot.c];
+            if(t==='B') { alert("系統錯誤：不應進入草叢！"); break; }
+            if(t==='P') { power++; currentMap[bot.r][bot.c]='0'; }
+            if(t==='M') { if(power>0) { power--; currentMap[bot.r][bot.c]='0'; } else { alert("沒愛心被打敗了👾！"); break; } }
+            if(t==='H') { render(); alert("挑戰成功！🏠"); break; }
+            render(); await new Promise(r => setTimeout(r, 600));
+        }
+        running = false; render();
+    }
+    loadLevel(0);
+</script>
+</body>
+</html>
