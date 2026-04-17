@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>存股複利試算器</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f7f6; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 5px; margin-bottom: 10px; position: relative; background: #fafafa; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+        input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; border: none; border-radius: 4px; padding: 10px 15px; transition: 0.3s; }
+        .btn-add { background: #27ae60; color: white; margin-bottom: 20px; }
+        .btn-calc { background: #3498db; color: white; width: 100%; font-size: 1.1em; }
+        .btn-remove { background: #e74c3c; color: white; padding: 5px 10px; font-size: 0.8em; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #3498db; color: white; text-align: center; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .summary { margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📈 存股試算器</h2>
+    
+    <div class="input-group">
+        <div style="flex: 1;">
+            <label>預計試算年數</label>
+            <input type="number" id="years" value="10" min="1">
+        </div>
+    </div>
+
+    <div id="stock-list">
+        <div class="card stock-item">
+            <div style="display: flex; justify-content: space-between;">
+                <strong>投資標的</strong>
+                <button class="btn-remove" onclick="this.parentElement.parentElement.remove()">移除</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div style="flex: 2;">
+                    <label>標的名稱</label>
+                    <input type="text" class="stock-name" placeholder="例如：00878" value="標的1">
+                </div>
+                <div style="flex: 1;">
+                    <label>現有市值 (元)</label>
+                    <input type="number" class="current-value" value="100000">
+                </div>
+                <div style="flex: 1;">
+                    <label>預期年息率 (%)</label>
+                    <input type="number" class="dividend-rate" value="6" step="0.1">
+                </div>
+            </div>
+            <div class="input-group">
+                <div style="flex: 1;">
+                    <label>每月定期定額 (元)</label>
+                    <input type="number" class="monthly-invest" value="5000">
+                </div>
+                <div style="flex: 1;">
+                    <label>持續買入</label>
+                    <select class="keep-buying">
+                        <option value="yes">持續買入</option>
+                        <option value="no">停止買入 (僅靠配息複利)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-add" onclick="addStock()">＋ 新增投資標的</button>
+    <button class="btn-calc" onclick="calculate()">開始計算</button>
+
+    <div id="result-area" style="display:none;">
+        <div class="summary" id="final-summary"></div>
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>年度</th>
+                    <th>總資產預估</th>
+                    <th>年度總股息</th>
+                    <th>平均每月股息</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function addStock() {
+        const div = document.createElement('div');
+        div.className = 'card stock-item';
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between;">
+                <strong>投資標的</strong>
+                <button class="btn-remove" onclick="this.parentElement.parentElement.remove()">移除</button>
+            </div>
+            <div class="input-group" style="margin-top:10px;">
+                <div style="flex: 2;"><label>標的名稱</label><input type="text" class="stock-name" value="新標的"></div>
+                <div style="flex: 1;"><label>現有市值 (元)</label><input type="number" class="current-value" value="0"></div>
+                <div style="flex: 1;"><label>預期年息率 (%)</label><input type="number" class="dividend-rate" value="5" step="0.1"></div>
+            </div>
+            <div class="input-group">
+                <div style="flex: 1;"><label>每月定期定額 (元)</label><input type="number" class="monthly-invest" value="0"></div>
+                <div style="flex: 1;"><label>持續買入</label><select class="keep-buying"><option value="yes">持續買入</option><option value="no">停止買入</option></select></div>
+            </div>`;
+        document.getElementById('stock-list').appendChild(div);
+    }
+
+    function calculate() {
+        const totalYears = parseInt(document.getElementById('years').value);
+        const stockElements = document.querySelectorAll('.stock-item');
+        let yearlyData = [];
+
+        // 初始化每年數據
+        for (let y = 1; y <= totalYears; y++) {
+            yearlyData.push({ year: y, totalAssets: 0, totalDividends: 0 });
+        }
+
+        stockElements.forEach(item => {
+            let name = item.querySelector('.stock-name').value;
+            let currentVal = parseFloat(item.querySelector('.current-value').value) || 0;
+            let rate = (parseFloat(item.querySelector('.dividend-rate').value) || 0) / 100;
+            let monthly = parseFloat(item.querySelector('.monthly-invest').value) || 0;
+            let keepBuying = item.querySelector('.keep-buying').value === 'yes';
+
+            let runningBalance = currentVal;
+
+            for (let y = 1; y <= totalYears; y++) {
+                // 1. 計算當年度股息 (假設股息在年底發放，以年初+年中投入後的資產計算簡化版)
+                // 實務上通常是季配或月配，這裡採用複利邏輯：(現有資產 + 全年投入/2) * 利率
+                let investmentThisYear = keepBuying ? (monthly * 12) : 0;
+                
+                // 計算股息 (以此處邏輯：去年結餘 * 利率)
+                let dividend = runningBalance * rate;
+                
+                // 更新餘額：原餘額 + 股息(自動再投入) + 新投入
+                runningBalance += dividend + investmentThisYear;
+
+                yearlyData[y-1].totalAssets += runningBalance;
+                yearlyData[y-1].totalDividends += dividend;
+            }
+        });
+
+        displayResults(yearlyData);
+    }
+
+    function displayResults(data) {
+        const tbody = document.querySelector('#result-table tbody');
+        tbody.innerHTML = '';
+        
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="text-align:center">第 ${row.year} 年</td>
+                <td>$${Math.round(row.totalAssets).toLocaleString()}</td>
+                <td style="color: #27ae60; font-weight:bold;">$${Math.round(row.totalDividends).toLocaleString()}</td>
+                <td style="color: #e67e22;">$${Math.round(row.totalDividends / 12).toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('result-area').style.display = 'block';
+        const lastYear = data[data.length - 1];
+        document.getElementById('final-summary').innerHTML = `
+            <strong>試算結論：</strong> 於第 ${lastYear.year} 年，您預計每年可領到 
+            <span style="font-size: 1.2em; color: #d35400;">$${Math.round(lastYear.totalDividends).toLocaleString()}</span> 
+            元的股息，相當於每月被動收入 <strong>$${Math.round(lastYear.totalDividends / 12).toLocaleString()}</strong> 元。
+        `;
+    }
+</script>
+
+</body>
+</html>
