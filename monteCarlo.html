@@ -2,14 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>穩定版 - 股息分流退休模擬器</title>
+    <title>終極穩定版 - 動態資產退休模擬器</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --primary: #2563eb; --bg: #f1f5f9; --card: #ffffff; --danger: #ef4444; }
         body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; font-size: 13px; }
-        .container { max-width: 1250px; margin: 0 auto; display: grid; grid-template-columns: 480px 1fr; gap: 24px; }
+        .container { max-width: 1300px; margin: 0 auto; display: grid; grid-template-columns: 500px 1fr; gap: 24px; }
         .panel { background: var(--card); padding: 24px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        h2 { font-size: 1.1rem; margin: 0 0 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; }
+        h2 { font-size: 1.1rem; margin: 0 0 16px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         
         .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
         label { font-size: 0.75rem; font-weight: 700; color: #64748b; margin-bottom: 4px; display: block; }
@@ -18,8 +18,10 @@
         .asset-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; }
         .asset-table th { font-size: 0.65rem; text-align: left; color: #94a3b8; padding: 4px; }
         .asset-table td { padding: 4px; border-bottom: 1px solid #f8fafc; }
-        .asset-table input { font-size: 0.8rem; padding: 4px; width: 100%; box-sizing: border-box; }
+        .asset-table input { font-size: 0.8rem; padding: 4px; width: 100%; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 4px; }
         
+        .add-btn { width: 100%; padding: 8px; background: #f8fafc; color: #64748b; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; margin-bottom: 15px; font-weight: 600; }
+        .add-btn:hover { background: #f1f5f9; border-color: var(--primary); color: var(--primary); }
         .run-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .run-btn:hover { background: #1d4ed8; }
         
@@ -27,49 +29,51 @@
         .stat-card { background: white; padding: 15px; border-radius: 16px; text-align: center; border: 1px solid #e2e8f0; }
         .stat-val { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
         .chart-container { background: white; padding: 24px; border-radius: 16px; height: 500px; border: 1px solid #e2e8f0; }
-        .del-btn { color: var(--danger); background: none; border: none; cursor: pointer; font-weight: bold; }
+        .del-btn { color: var(--danger); background: none; border: none; cursor: pointer; font-size: 1.2rem; line-height: 1; }
+        .total-w { font-size: 0.8rem; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="panel">
-        <h2>⚙️ 模擬核心設定</h2>
+        <h2>⚙️ 核心設定</h2>
         <div class="input-grid">
             <div><label>目前年齡</label><input type="number" id="ageNow" value="35"></div>
-            <div><label>預計退休</label><input type="number" id="ageRetire" value="55"></div>
-            <div><label>起始本本金 (萬)</label><input type="number" id="cashNow" value="50"></div>
+            <div><label>退休年齡</label><input type="number" id="ageRetire" value="55"></div>
+            <div><label>本金 (萬)</label><input type="number" id="cashNow" value="50"></div>
             <div><label>年投入 (萬)</label><input type="number" id="cashIn" value="12"></div>
             <div><label>退休年支 (萬)</label><input type="number" id="cashOut" value="64"></div>
             <div><label>公補 (萬/年)</label><input type="number" id="subsidy" value="12"></div>
         </div>
 
-        <h2>📈 資產分配 (股息不投入)</h2>
+        <h2>📈 配置與股息 <span id="wTag" class="total-w">100%</span></h2>
         <table class="asset-table">
             <thead>
                 <tr>
-                    <th style="width:25%">標的</th>
-                    <th style="width:15%">%</th>
-                    <th style="width:18%">增長%</th>
-                    <th style="width:15%">息率%</th>
-                    <th style="width:15%">波動%</th>
-                    <th style="width:12%">加碼</th>
-                    <th></th>
+                    <th style="width:24%">標的</th>
+                    <th style="width:14%">%</th>
+                    <th style="width:16%">增長%</th>
+                    <th style="width:14%">息率%</th>
+                    <th style="width:14%">波動%</th>
+                    <th style="width:10%">加碼</th>
+                    <th style="width:8%"></th>
                 </tr>
             </thead>
             <tbody id="assetBody">                
-                <tr><td><input type="text" value="0050"></td><td><input type="number" class="w" value="80"></td><td><input type="number" class="r" value="7"></td><td><input type="number" class="y" value="3.5"></td><td><input type="number" class="s" value="20"></td><td style="text-align:center"><input type="checkbox" class="isInv" checked></td><td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td></tr>                
-                <tr><td><input type="text" value="高股息"></td><td><input type="number" class="w" value="20"></td><td><input type="number" class="r" value="1"></td><td><input type="number" class="y" value="6"></td><td><input type="number" class="s" value="12"></td><td style="text-align:center"><input type="checkbox" class="isInv"></td><td><button class="del-btn" onclick="this.closest('tr').remove()">×</button></td></tr>
+                <tr><td><input type="text" value="0050"></td><td><input type="number" class="w" value="80" onchange="checkW()"></td><td><input type="number" class="r" value="7"></td><td><input type="number" class="y" value="3.5"></td><td><input type="number" class="s" value="20"></td><td style="text-align:center"><input type="checkbox" class="isInv" checked></td><td><button class="del-btn" onclick="delRow(this)">×</button></td></tr>                
+                <tr><td><input type="text" value="高股息"></td><td><input type="number" class="w" value="20" onchange="checkW()"></td><td><input type="number" class="r" value="1"></td><td><input type="number" class="y" value="6"></td><td><input type="number" class="s" value="12"></td><td style="text-align:center"><input type="checkbox" class="isInv"></td><td><button class="del-btn" onclick="delRow(this)">×</button></td></tr>
             </tbody>
         </table>
-        <button class="run-btn" onclick="run()">開始精準模擬</button>
+        <button class="add-btn" onclick="addRow()">+ 新增投資標的</button>
+        <button class="run-btn" onclick="run()">執行模擬</button>
     </div>
 
     <div class="main-content">
         <div class="results-grid">
             <div class="stat-card"><div class="stat-val" id="resRate">--%</div><div style="font-size:0.7rem">人生成功率</div></div>
-            <div class="stat-card"><div class="stat-val" id="resAt55">--</div><div style="font-size:0.7rem">55歲時本金</div></div>
-            <div class="stat-card"><div class="stat-val" id="resDiv">--</div><div style="font-size:0.7rem">55歲時年領股息</div></div>
+            <div class="stat-card"><div class="stat-val" id="resAt55">--</div><div style="font-size:0.7rem">退休時本金</div></div>
+            <div class="stat-card"><div class="stat-val" id="resDiv">--</div><div style="font-size:0.7rem">退休年領股息</div></div>
         </div>
         <div class="chart-container"><canvas id="mainChart"></canvas></div>
     </div>
@@ -77,6 +81,27 @@
 
 <script>
 let chartInstance = null;
+
+function addRow() {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td><input type="text" value="New Asset"></td><td><input type="number" class="w" value="0" onchange="checkW()"></td><td><input type="number" class="r" value="7"></td><td><input type="number" class="y" value="3"></td><td><input type="number" class="s" value="15"></td><td style="text-align:center"><input type="checkbox" class="isInv"></td><td><button class="del-btn" onclick="delRow(this)">×</button></td>`;
+    document.getElementById('assetBody').appendChild(tr);
+    checkW();
+}
+
+function delRow(btn) {
+    btn.closest('tr').remove();
+    checkW();
+}
+
+function checkW() {
+    let total = 0;
+    document.querySelectorAll('.w').forEach(i => total += parseFloat(i.value || 0));
+    const tag = document.getElementById('wTag');
+    tag.innerText = total.toFixed(1) + "%";
+    tag.style.background = (Math.abs(total-100)>0.1) ? '#fee2e2' : '#dbeafe';
+    tag.style.color = (Math.abs(total-100)>0.1) ? '#ef4444' : '#1e40af';
+}
 
 function run() {
     const ageNow = parseInt(document.getElementById('ageNow').value);
@@ -112,87 +137,57 @@ function run() {
         let path = [Math.round(cashNow)]; 
 
         for (let y = 1; y <= totalY; y++) {
-            let currentYearTotalDiv = 0;
-            let currentYearTotalBalance = 0;
+            let yearDiv = 0, yearBal = 0;
             
             portfolio.forEach(a => {
                 let u1 = Math.random(), u2 = Math.random();
                 let rand = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
-                
-                // 1. 股息分離 (領走不計入下一年)
-                currentYearTotalDiv += a.balance * a.y;
-                
-                // 2. 價差增長 (複利滾動)
-                a.balance *= (1 + (a.r + a.s * rand * 0.82));
-                currentYearTotalBalance += a.balance;
+                yearDiv += a.balance * a.y; // 股息抽出
+                a.balance *= (1 + (a.r + a.s * rand * 0.82)); // 價差成長
+                yearBal += a.balance;
             });
 
             if (y <= investY) {
-                // 累積期：每年投入加碼
                 if (totalInvW > 0) {
                     portfolio.forEach(a => { if (a.isInv) a.balance += cashIn * (a.w / totalInvW); });
                 }
-                if (y === investY) {
-                    at55.push(currentYearTotalBalance);
-                    divAt55.push(currentYearTotalDiv);
-                }
+                if (y === investY) { at55.push(yearBal); divAt55.push(yearDiv); }
             } else {
-                // 提領期 (2.5% 通膨)
                 let cost = cashOut * Math.pow(1.025, y - investY);
-                if (ageNow + y >= 65) currentYearTotalBalance += subsidy;
-                
-                // 先用股息支應支出
-                let netWithdraw = cost - currentYearTotalDiv;
-                if (netWithdraw > 0 && currentYearTotalBalance > 0) {
-                    let ratio = netWithdraw / currentYearTotalBalance;
+                if (ageNow + y >= 65) yearBal += subsidy;
+                let netWithdraw = cost - yearDiv;
+                if (netWithdraw > 0 && yearBal > 0) {
+                    let ratio = netWithdraw / yearBal;
                     portfolio.forEach(a => a.balance *= (1 - Math.min(ratio, 1)));
                 }
             }
-
-            currentYearTotalBalance = portfolio.reduce((sum, a) => sum + a.balance, 0);
-            if (currentYearTotalBalance < 0) currentYearTotalBalance = 0;
-            
-            // 存入 path 陣列，確保長度與 label 完全一致
-            if (i < 30) path.push(Math.round(currentYearTotalBalance));
+            yearBal = portfolio.reduce((sum, a) => sum + a.balance, 0);
+            if (i < 30) path.push(Math.max(0, Math.round(yearBal)));
         }
         if (portfolio.reduce((sum, a) => sum + a.balance, 0) > 0) successes++;
         if (i < 30) paths.push(path);
     }
 
-    // 更新顯示
     document.getElementById('resRate').innerText = (successes / 2000 * 100).toFixed(1) + "%";
     at55.sort((a,b)=>a-b);
-    document.getElementById('resAt55').innerText = Math.round(at55[1000]).toLocaleString() + " 萬";
+    document.getElementById('resAt55').innerText = Math.round(at55[1000] || 0).toLocaleString() + " 萬";
     divAt55.sort((a,b)=>a-b);
-    document.getElementById('resDiv').innerText = Math.round(divAt55[1000]).toLocaleString() + " 萬";
-
+    document.getElementById('resDiv').innerText = Math.round(divAt55[1000] || 0).toLocaleString() + " 萬";
     drawChart(paths, ageNow, totalY);
 }
 
 function drawChart(paths, startAge, len) {
     const ctx = document.getElementById('mainChart').getContext('2d');
-    const labels = Array.from({length: len + 1}, (_, i) => (startAge + i) + "歲");
-    
     if (chartInstance) chartInstance.destroy();
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels,
+            labels: Array.from({length: len + 1}, (_, i) => (startAge + i) + "歲"),
             datasets: paths.map((p, i) => ({
-                data: p,
-                borderColor: i === 0 ? '#2563eb' : 'rgba(148, 163, 184, 0.2)',
-                borderWidth: i === 0 ? 3 : 1,
-                pointRadius: 0
+                data: p, borderColor: i === 0 ? '#2563eb' : 'rgba(148, 163, 184, 0.2)', borderWidth: i === 0 ? 3 : 1, pointRadius: 0
             }))
         },
-        options: {
-            maintainAspectRatio: false,
-            scales: {
-                x: { ticks: { maxRotation: 0, font: { size: 10 } } },
-                y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString() + '萬' } }
-            },
-            plugins: { legend: { display: false } }
-        }
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } }
     });
 }
 window.onload = run;
