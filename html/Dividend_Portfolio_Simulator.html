@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>存股試算器 - 逐年變化與個別股息設定</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --border: #e2e8f0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 20px; color: #1e293b; font-size: 13px; }
+        .container { max-width: 1200px; margin: auto; }
+        .card { background: white; padding: 24px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        
+        .stock-item { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid var(--border); display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr 0.8fr 0.8fr 0.8fr 40px; gap: 10px; align-items: center; }
+        label { font-size: 0.7rem; font-weight: 800; color: #64748b; margin-bottom: 4px; display: block; }
+        input { width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        
+        .add-btn { width: 100%; padding: 10px; background: white; color: #475569; border: 1px dashed #cbd5e1; border-radius: 8px; cursor: pointer; margin-bottom: 20px; font-weight: 600; }
+        .run-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 800; font-size: 1.1rem; cursor: pointer; }
+
+        .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 25px 0; }
+        .stat-card { background: white; padding: 18px; border-radius: 16px; text-align: center; border: 1px solid var(--border); }
+        .stat-val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th { background: #f1f5f9; color: #475569; padding: 12px; text-align: left; font-size: 0.75rem; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        tr:hover { background: #f8fafc; }
+        .reinvest-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #dcfce7; color: #166534; font-weight: bold; }
+        .payout-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #fee2e2; color: #991b1b; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2 style="margin:0 0 20px 0;">📊 多標的存股匯總試算</h2>
+        <div id="stockList">
+            <div class="stock-item">
+                <div><label>標的名稱</label><input type="text" value="0050"></div>
+                <div><label>已投資 (萬)</label><input type="number" class="init" value="10"></div>
+                <div><label>每月投入 (元)</label><input type="number" class="monthly" value="10000"></div>
+                <div><label>年化報酬%</label><input type="number" class="ret" value="10"></div>
+                <div><label>殖利率%</label><input type="number" class="yld" value="3.5"></div>
+                <div><label>幾年</label><input type="number" class="yrs" value="10"></div>
+                <div style="text-align:center"><label>股息再投入</label><input type="checkbox" class="reinvest" checked style="width:20px; height:20px;"></div>
+                <button style="color:#ef4444; background:none; border:none; cursor:pointer;" onclick="this.closest('.stock-item').remove()">×</button>
+            </div>
+        </div>
+        <button class="add-btn" onclick="addNewStock()">+ 新增標的</button>
+        <button class="run-btn" onclick="calculate()">開始試算並列出變化</button>
+    </div>
+
+    <div class="results-grid" id="resGrid" style="display:none;">
+        <div class="stat-card"><div class="stat-val" id="resCost">0</div><div style="font-size:0.7rem">累積總投入</div></div>
+        <div class="stat-card"><div class="stat-val" id="resVal">0</div><div style="font-size:0.7rem">預估總市值</div></div>
+        <div class="stat-card"><div class="stat-val" id="resDivAcc">0</div><div style="font-size:0.7rem">累計領取股息</div></div>
+        <div class="stat-card"><div class="stat-val" id="resDivYear">0</div><div style="font-size:0.7rem">最終年領現金流</div></div>
+    </div>
+
+    <table id="yearTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>年份</th>
+                <th>累積投入成本</th>
+                <th>預估組合總市值</th>
+                <th>當年領取股息</th>
+                <th>累計領取股息</th>
+                <th>年增長率 (含息)</th>
+            </tr>
+        </thead>
+        <tbody id="yearBody"></tbody>
+    </table>
+</div>
+
+<script>
+function addNewStock() {
+    const html = `<div class="stock-item">
+        <div><label>標的</label><input type="text" value="新標的"></div>
+        <div><label>已投資 (萬)</label><input type="number" class="init" value="0"></div>
+        <div><label>每月 (元)</label><input type="number" class="monthly" value="10000"></div>
+        <div><label>報酬%</label><input type="number" class="ret" value="7"></div>
+        <div><label>殖利率%</label><input type="number" class="yld" value="4"></div>
+        <div><label>年數</label><input type="number" class="yrs" value="10"></div>
+        <div style="text-align:center"><label>再投入</label><input type="checkbox" class="reinvest" checked style="width:20px; height:20px;"></div>
+        <button style="color:#ef4444; background:none; border:none; cursor:pointer;" onclick="this.closest('.stock-item').remove()">×</button>
+    </div>`;
+    document.getElementById('stockList').insertAdjacentHTML('beforeend', html);
+}
+
+function calculate() {
+    const items = document.querySelectorAll('.stock-item');
+    let maxYears = 0;
+    const stockData = [];
+
+    items.forEach(item => {
+        const yrs = parseInt(item.querySelector('.yrs').value);
+        if(yrs > maxYears) maxYears = yrs;
+        stockData.push({
+            balance: parseFloat(item.querySelector('.init').value) * 10000,
+            monthly: parseFloat(item.querySelector('.monthly').value),
+            ret: parseFloat(item.querySelector('.ret').value) / 100,
+            yld: parseFloat(item.querySelector('.yld').value) / 100,
+            yrs: yrs,
+            reinvest: item.querySelector('.reinvest').checked,
+            cost: parseFloat(item.querySelector('.init').value) * 10000,
+            accDiv: 0
+        });
+    });
+
+    let tableHTML = "";
+    let lastTotalVal = 0;
+
+    for (let y = 1; y <= maxYears; y++) {
+        let yearTotalCost = 0, yearTotalVal = 0, yearTotalDiv = 0, yearAccDiv = 0;
+
+        stockData.forEach(s => {
+            let yearDiv = 0;
+            // 跑 12 個月
+            for (let m = 1; m <= 12; m++) {
+                if (y <= s.yrs) {
+                    s.balance += s.monthly;
+                    s.cost += s.monthly;
+                }
+                
+                let mDiv = s.balance * (s.yld / 12);
+                yearDiv += mDiv;
+                
+                // 判斷是否再投入
+                let mGrowth = s.reinvest ? 
+                    s.balance * (s.ret / 12) : 
+                    s.balance * ((s.ret - s.yld) / 12);
+                
+                s.balance += mGrowth;
+            }
+            if (!s.reinvest) s.accDiv += yearDiv;
+            
+            yearTotalCost += s.cost;
+            yearTotalVal += s.balance;
+            yearTotalDiv += yearDiv;
+            yearAccDiv += s.accDiv;
+        });
+
+        // 計算年增長率
+        let growthRate = lastTotalVal > 0 ? ((yearTotalVal - lastTotalVal) / lastTotalVal * 100).toFixed(1) + "%" : "-";
+        lastTotalVal = yearTotalVal;
+
+        tableHTML += `<tr>
+            <td>第 ${y} 年</td>
+            <td>${Math.round(yearTotalCost/10000).toLocaleString()} 萬</td>
+            <td style="font-weight:bold; color:#2563eb;">${Math.round(yearTotalVal/10000).toLocaleString()} 萬</td>
+            <td>${Math.round(yearTotalDiv/10000).toLocaleString()} 萬</td>
+            <td style="color:#059669;">${Math.round(yearAccDiv/10000).toLocaleString()} 萬</td>
+            <td>${growthRate}</td>
+        </tr>`;
+
+        if (y === maxYears) {
+            document.getElementById('resCost').innerText = Math.round(yearTotalCost/10000).toLocaleString() + " 萬";
+            document.getElementById('resVal').innerText = Math.round(yearTotalVal/10000).toLocaleString() + " 萬";
+            document.getElementById('resDivAcc').innerText = Math.round(yearAccDiv/10000).toLocaleString() + " 萬";
+            document.getElementById('resDivYear').innerText = Math.round(yearTotalDiv/10000).toLocaleString() + " 萬/年";
+        }
+    }
+
+    document.getElementById('resGrid').style.display = 'grid';
+    document.getElementById('yearTable').style.display = 'table';
+    document.getElementById('yearBody').innerHTML = tableHTML;
+}
+</script>
+</body>
+</html>
